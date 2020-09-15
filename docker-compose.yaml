@@ -1,0 +1,73 @@
+version: "3.1"
+
+services:
+  ghost:
+    image: ghost:alpine
+    restart: always
+    ports:
+      - 127.0.0.1:2368:2368
+    environment:
+      url: https://MY_DOMAIN.com
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: root
+      database__connection__password: MY_STRONG_PASSWORD
+      database__connection__database: ghost
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: MY_STRONG_PASSWORD
+    volumes:
+      - ./data:/var/lib/mysql
+
+ # https://github.com/umputun/remark42
+  remark:
+    image: umputun/remark42:latest
+    container_name: "remark42"
+    hostname: "remark42"
+    restart: always
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    environment:
+      - STORE_BOLT_PATH=/srv/var/db
+      - BACKUP_PATH=/srv/var/backup
+      - AUTH_GOOGLE_CID=***
+      - AUTH_GOOGLE_CSEC=***
+      - AUTH_GITHUB_CID=***
+      - AUTH_GITHUB_CSEC=***
+      - AUTH_FACEBOOK_CID=***
+      - AUTH_FACEBOOK_CSEC=***
+      - AUTH_TWITTER_CID=***
+      - AUTH_TWITTER_CSEC=***
+      - AUTH_YANDEX_CID=***
+      - AUTH_YANDEX_CSEC=***
+      - AUTH_ANON=true
+      - NOTIFY_TYPE=***
+      - NOTIFY_TELEGRAM_TOKEN=***
+      - NOTIFY_TELEGRAM_CHAN=***
+      - ADMIN_PASSWD=MY_ADMIN_PASSWORD
+      - ADMIN_SHARED_ID=***
+      - TIME_ZONE=Europe/London
+      - SECRET=***
+      - SITE=***
+      - REMARK_URL=https://remark42.MY_DOMAIN.com
+    volumes:
+      - ./var:/srv/var
+
+  # # Example how to expose
+  # caddy:
+  #   image: caddy
+  #   restart: always
+  #   ports:
+  #     - 80:80
+  #     - 443:433
